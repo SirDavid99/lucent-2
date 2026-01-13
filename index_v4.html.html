@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Savings Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <h1>Future $ Savings Calculator</h1>
+            </div>
+        </header>
+
+        <!-- Dashboard principale -->
+        <div class="main-content">
+            <!-- Form Risparmio -->
+            <section class="card form-card">
+                <div class="card-header">
+                    <h2>💵 Risparmio Mensile</h2>
+                </div>
+                <form id="savingForm">
+                    <!-- Risparmio di gruppo -->
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="groupSaving"> 
+                            <span><strong>Risparmio di gruppo</strong></span>
+                        </label>
+                    </div>
+                    
+                    <div id="groupFields" class="group-fields-container" style="display: none;">
+                        <div class="form-group">
+                            <label for="investorNames">👥 Risparmiatori</label>
+                            <input type="text" id="investorNames" value="" placeholder="Inserisci i nomi separati da virgola">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group form-group-half">
+                                <label for="peopleCount">Persone</label>
+                                <input type="number" id="peopleCount" min="1" value="" placeholder="Numero persone" title="Inserisci il numero di persone">
+                            </div>
+                            <div class="form-group form-group-half">
+                                <label for="perPersonAmount">Per Persona (€)</label>
+                                <input type="number" id="perPersonAmount" min="0" step="0.01" value="" placeholder="Importo per persona" title="Inserisci l'importo per persona in euro">
+                            </div>
+                        </div>
+                        <div class="calculated-total-box">
+                            <span class="calculated-label">Totale Mensile</span>
+                            <span class="calculated-total" id="calculatedTotal">€0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div id="individualFields" class="individual-fields-container">
+                        <div class="form-group">
+                            <label for="monthlySaving">Risparmio Mensile (€)</label>
+                            <input type="number" id="monthlySaving" min="0" step="0.01" placeholder="500" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="yearsCount">📅 Numero di Anni</label>
+                        <input type="number" id="yearsCount" min="1" max="100" step="1" value="" placeholder="Numero di anni" title="Inserisci il numero di anni per calcolare il risparmio totale" required>
+                        <small class="field-note">Inserisci il numero di anni per calcolare il risparmio totale</small>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Risultato -->
+            <section class="card result-card">
+                <div class="card-header">
+                    <h2>🔮 Risparmio Totale</h2>
+                    <span class="card-badge future">Futuro</span>
+                </div>
+                <div class="result-content">
+                    <div class="result-main">
+                        <div class="result-icon">💰</div>
+                        <div class="result-amount" id="totalSaved">€0.00</div>
+                        <div class="result-label">Totale Risparmiato</div>
+                    </div>
+                    <div class="result-details">
+                        <div class="result-detail-item">
+                            <span class="detail-label">Risparmio Mensile:</span>
+                            <span class="detail-value" id="monthlySavingDisplay">€0.00</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span class="detail-label">Mesi:</span>
+                            <span class="detail-value" id="monthsDisplay">0 mesi</span>
+                        </div>
+                        <div class="result-detail-item">
+                            <span class="detail-label">Anni:</span>
+                            <span class="detail-value" id="yearsDisplay">0 anni</span>
+                        </div>
+                    </div>
+                    <div class="result-info">
+                        <p>📌 Calcolo basato su risparmio mensile continuo per <strong id="yearsInfo">5</strong> anni (<strong id="monthsInfo">60</strong> mesi) senza rendimento.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Convertitore Valuta EUR/USD -->
+            <section class="card currency-converter-card">
+                <div class="card-header">
+                    <h2>💱 Convertitore Valuta</h2>
+                    <span class="card-badge converter">EUR ↔ USD</span>
+                </div>
+                <div class="converter-content">
+                    <div class="converter-row">
+                        <div class="converter-group">
+                            <label for="eurAmount">💶 Euro (EUR)</label>
+                            <div class="converter-input-wrapper">
+                                <input type="number" id="eurAmount" min="0" step="0.01" placeholder="0.00" value="0">
+                                <span class="currency-symbol">€</span>
+                            </div>
+                        </div>
+                        <div class="converter-arrow">⇄</div>
+                        <div class="converter-group">
+                            <label for="usdAmount">💵 Dollari (USD)</label>
+                            <div class="converter-input-wrapper">
+                                <input type="number" id="usdAmount" min="0" step="0.01" placeholder="0.00" value="0" readonly>
+                                <span class="currency-symbol">$</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="converter-info">
+                        <div class="exchange-rate-info">
+                            <span class="rate-label">Tasso di cambio:</span>
+                            <span class="rate-value" id="exchangeRate">1 EUR = $1.08</span>
+                            <button type="button" class="btn-update-rate" id="updateRateBtn">🔄 Aggiorna</button>
+                        </div>
+                        <div class="converter-quick-actions">
+                            <button type="button" class="btn-quick-convert" data-amount="100">€100</button>
+                            <button type="button" class="btn-quick-convert" data-amount="500">€500</button>
+                            <button type="button" class="btn-quick-convert" data-amount="1000">€1,000</button>
+                            <button type="button" class="btn-quick-convert" data-amount="5000">€5,000</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sezione Bot di Investimento in Borsa -->
+        <section class="card investment-bot-card" id="investmentBotCard">
+            <div class="card-header">
+                <h2>🤖 Bot di Investimento in Borsa</h2>
+                <span class="card-badge bot">AI Trading</span>
+            </div>
+            <div class="investment-bot-content">
+                <div class="bot-intro">
+                    <p>💡 Simula investimenti in borsa e ottieni suggerimenti basati su strategie di investimento consolidate.</p>
+                </div>
+                
+                <form id="investmentForm" class="investment-form">
+                    <div class="form-row">
+                        <div class="form-group form-group-half">
+                            <label for="investmentAmount">💰 Investimento Mensile (€)</label>
+                            <input type="number" id="investmentAmount" min="100" step="100" value="" placeholder="Importo mensile" title="Inserisci l'importo mensile da investire (minimo €100)" autocomplete="off" required>
+                        </div>
+                        <div class="form-group form-group-half">
+                            <label for="investmentYears">📅 Anni di Investimento</label>
+                            <input type="number" id="investmentYears" min="1" max="30" step="1" value="" placeholder="Numero di anni" title="Inserisci il numero di anni per l'investimento" autocomplete="off" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="riskProfile">⚖️ Profilo di Rischio</label>
+                        <select id="riskProfile" class="risk-select">
+                            <option value="conservative">Conservativo (3-5% annuo)</option>
+                            <option value="moderate" selected>Moderato (5-7% annuo)</option>
+                            <option value="aggressive">Aggressivo (7-10% annuo)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="investmentStrategy">📊 Strategia di Investimento</label>
+                        <select id="investmentStrategy" class="strategy-select">
+                            <option value="dca">Dollar Cost Averaging (DCA)</option>
+                            <option value="lump" selected>Investimento Unico</option>
+                            <option value="monthly">Investimento Mensile</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="companyStock">🏢 Società Azionaria</label>
+                        <select id="companyStock" class="company-select">
+                            <option value="growth" selected>Growth - Azioni Crescita</option>
+                        </select>
+                </div>
+                
+                    <button type="submit" class="btn-primary">
+                        <span>📈</span> Analizza Investimento
+                    </button>
+                </form>
+
+                <div id="investmentResults" class="investment-results" style="display: none;">
+                    <div class="results-header">
+                        <h3>📊 Risultati della Simulazione</h3>
+                        <div class="company-info" id="companyInfo"></div>
+                    </div>
+
+                    <div class="investment-summary">
+                        <div class="summary-item">
+                            <span class="summary-label">Investimento Mensile:</span>
+                            <span class="summary-value" id="monthlyInvestment">€0.00</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Capitale Finale:</span>
+                            <span class="summary-value highlight-value" id="finalCapital">€0.00</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Guadagno Totale:</span>
+                            <span class="summary-value profit" id="totalGain">€0.00</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Rendimento %:</span>
+                            <span class="summary-value profit" id="returnPercentage">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="bot-recommendations">
+                        <h4>💡 Raccomandazioni del Bot</h4>
+                        <div id="botMessages" class="bot-messages"></div>
+                    </div>
+
+                    <div class="investment-breakdown">
+                        <h4>📋 Dettaglio Investimento</h4>
+                        <div id="investmentBreakdown" class="breakdown-grid"></div>
+                    </div>
+
+                    <div class="projection-chart">
+                        <h4>📈 Proiezione nel Tempo - Onde di Elliott</h4>
+                        <div id="projectionChart" class="chart-container">
+                            <div class="elliott-wave-container">
+                                <svg id="elliottWaveChart" class="elliott-wave-svg"></svg>
+                                <div class="wave-controls">
+                                    <input type="range" id="waveTimeSlider" min="0" max="100" value="0" class="wave-slider">
+                                    <div class="wave-time-info">
+                                        <div class="wave-info-row">
+                                            <span id="waveTimeLabel">Anno: 0</span>
+                                            <span id="waveChangeLabel">Variazione: 0%</span>
+                                        </div>
+                                        <div class="wave-info-row">
+                                            <span id="waveInvestedLabel">Investito: €0.00</span>
+                                            <span id="waveGainLabel">Guadagno: €0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+                
+                    <div class="company-chart-section">
+                        <h4>📊 Diagramma Originale - Growth Corporation</h4>
+                        <div id="companyChart" class="chart-container">
+                            <div class="company-chart-container">
+                                <svg id="growthCompanyChart" class="company-chart-svg"></svg>
+                                <div class="company-chart-controls">
+                                    <input type="range" id="companyTimeSlider" min="0" max="100" value="0" class="company-slider">
+                                    <div class="company-time-info">
+                                        <div class="company-info-row">
+                                            <span id="companyMonthLabel">Mese: Gennaio</span>
+                                            <span id="companyPriceLabel">Prezzo: €0.00</span>
+                                        </div>
+                                        <div class="company-info-row">
+                                            <span id="companyOpenLabel">Apertura: €0.00</span>
+                                            <span id="companyCloseLabel">Chiusura: €0.00</span>
+                                        </div>
+                                        <div class="company-info-row">
+                                            <span id="companyHighLabel">Massimo: €0.00</span>
+                                            <span id="companyLowLabel">Minimo: €0.00</span>
+                                        </div>
+                                        <div class="company-info-row">
+                                            <span id="companyVolumeLabel">Volume: 0</span>
+                                            <span id="companyChangeLabel">Variazione: 0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="company-chart-info">
+                                    <div class="company-stats">
+                                        <div class="stat-item">
+                                            <span class="stat-label">Prezzo Attuale:</span>
+                                            <span class="stat-value" id="currentPrice">€0.00</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Variazione 24h:</span>
+                                            <span class="stat-value" id="dailyChange">0%</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Volume:</span>
+                                            <span class="stat-value" id="volume">0</span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-label">Market Cap:</span>
+                                            <span class="stat-value" id="marketCap">€0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sezione Risparmio Individuale per Persona -->
+        <div class="individual-savers-section" id="individualSaversSection" style="display: none;">
+            <h2 class="section-title">💼 Risparmio Individuale</h2>
+            <div class="savers-grid">
+                <div class="saver-card" id="saverCard1">
+                    <div class="saver-card-header">
+                        <div class="saver-avatar">👤</div>
+                        <div class="saver-name" id="saverName1"></div>
+                    </div>
+                    <div class="saver-content">
+                        <div class="saver-amount-main">
+                            <div class="saver-amount-label">Totale Risparmiato</div>
+                            <div class="saver-amount-value" id="saverTotal1">€0.00</div>
+                        </div>
+                        <div class="saver-details">
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Mensile:</span>
+                                <span class="saver-detail-value" id="saverMonthly1">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Tra 1 anno:</span>
+                                <span class="saver-detail-value" id="saver1Year1">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Tra 3 anni:</span>
+                                <span class="saver-detail-value" id="saver3Years1">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row highlight">
+                                <span class="saver-detail-label">Tra 5 anni:</span>
+                                <span class="saver-detail-value highlight" id="saver5Years1">€0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="saver-card" id="saverCard2">
+                    <div class="saver-card-header">
+                        <div class="saver-avatar">👤</div>
+                        <div class="saver-name" id="saverName2"></div>
+                    </div>
+                    <div class="saver-content">
+                        <div class="saver-amount-main">
+                            <div class="saver-amount-label">Totale Risparmiato</div>
+                            <div class="saver-amount-value" id="saverTotal2">€0.00</div>
+                        </div>
+                        <div class="saver-details">
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Mensile:</span>
+                                <span class="saver-detail-value" id="saverMonthly2">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Tra 1 anno:</span>
+                                <span class="saver-detail-value" id="saver1Year2">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Tra 3 anni:</span>
+                                <span class="saver-detail-value" id="saver3Years2">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row highlight">
+                                <span class="saver-detail-label">Tra 5 anni:</span>
+                                <span class="saver-detail-value highlight" id="saver5Years2">€0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="saver-card" id="saverCard3">
+                    <div class="saver-card-header">
+                        <div class="saver-avatar">👤</div>
+                        <div class="saver-name" id="saverName3"></div>
+                    </div>
+                    <div class="saver-content">
+                        <div class="saver-amount-main">
+                            <div class="saver-amount-label">Totale Risparmiato</div>
+                            <div class="saver-amount-value" id="saverTotal3">€0.00</div>
+                        </div>
+                        <div class="saver-details">
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Mensile:</span>
+                                <span class="saver-detail-value" id="saverMonthly3">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Tra 1 anno:</span>
+                                <span class="saver-detail-value" id="saver1Year3">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Tra 3 anni:</span>
+                                <span class="saver-detail-value" id="saver3Years3">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row highlight">
+                                <span class="saver-detail-label">Tra 5 anni:</span>
+                                <span class="saver-detail-value highlight" id="saver5Years3">€0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="saver-card" id="saverCard4">
+                    <div class="saver-card-header">
+                        <div class="saver-avatar">👤</div>
+                        <div class="saver-name" id="saverName4"></div>
+                    </div>
+                    <div class="saver-content">
+                        <div class="saver-amount-main">
+                            <div class="saver-amount-label">Totale Risparmiato</div>
+                            <div class="saver-amount-value" id="saverTotal4">€0.00</div>
+                        </div>
+                        <div class="saver-details">
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Mensile:</span>
+                                <span class="saver-detail-value" id="saverMonthly4">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Tra 1 anno:</span>
+                                <span class="saver-detail-value" id="saver1Year4">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row">
+                                <span class="saver-detail-label">Tra 3 anni:</span>
+                                <span class="saver-detail-value" id="saver3Years4">€0.00</span>
+                            </div>
+                            <div class="saver-detail-row highlight">
+                                <span class="saver-detail-label">Tra 5 anni:</span>
+                                <span class="saver-detail-value highlight" id="saver5Years4">€0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sezione Risparmio Progressivo fino a 5 Anni -->
+        <section class="card timeline-card" id="timelineCard" style="display: none;">
+            <div class="card-header">
+                <h2>📅 Risparmio Progressivo fino a 5 Anni</h2>
+                <span class="card-badge timeline">Timeline</span>
+            </div>
+            <div class="timeline-content">
+                <div class="timeline-description">
+                    <p>💼 Risparmio totale di tutti gli investitori</p>
+                </div>
+                <div class="timeline-grid" id="timelineGrid">
+                    <!-- Le card degli anni verranno generate dinamicamente -->
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
